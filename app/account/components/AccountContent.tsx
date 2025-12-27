@@ -24,7 +24,7 @@ const AccountContent = () => {
     return (
         <div className="mb-7 px-6">
             <div className="flex flex-col gap-y-4">
-                <p>You are currently on the <b>Spotify Premium</b> plan</p>
+                <p>You are currently on the <b>Musicfy Premium</b> plan</p>
                 <Button className="w-[300px]" onClick={handleClick}>Open Customer Portal</Button>
             </div>
         </div>
