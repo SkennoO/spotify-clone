@@ -4,12 +4,12 @@ import { Song } from "@/types";
 import LikeButton from "./LikeButton";
 import MediaItem from "./MediaItem";
 import { BsPauseFill, BsPlayFill } from 'react-icons/bs'
-import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai";
+import { AiFillStepBackward, AiFillStepForward } from "react-icons/ai"
 import { HiSpeakerWave, HiSpeakerXMark } from 'react-icons/hi2'
-import Slider from "./Slider";
-import usePlayer from "@/hooks/usePlayer";
-import { useEffect, useState, useCallback } from "react";
-import useSound from "use-sound";
+import Slider from "./Slider"
+import usePlayer from "@/hooks/usePlayer"
+import { useEffect, useState, useCallback } from "react"
+import useSound from "use-sound"
 
 interface Props {
   song: Song;
@@ -54,6 +54,7 @@ const PlayerContent = ({ song, songUrl }: Props) => {
     format: ['mp3']
   })
 
+  // play audio pe mount
   useEffect(() => {
     sound?.play()
     return () => {
@@ -79,7 +80,13 @@ const PlayerContent = ({ song, songUrl }: Props) => {
 
   const toggleMute = useCallback(() => {
     setVolume(prev => prev === 0 ? 1 : 0)
-  }, [])
+    if (sound) sound.volume(volume)
+  }, [volume, sound])
+
+  const handleSeek = (value: number) => {
+    sound?.seek(value)
+    setCurrentTime(value)
+  }
 
   const formatTime = (time: number) => {
     if (!time) return "0:00"
@@ -112,35 +119,52 @@ const PlayerContent = ({ song, songUrl }: Props) => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handlePlay, onPlayNext, onPlayPrev, toggleMute])
 
+  // Media Session API – lockscreen & controls
+  useEffect(() => {
+    if (!sound) return
+
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: song.title,
+        artist: song.author,
+        artwork: [
+          
+        ],
+      })
+
+      navigator.mediaSession.setActionHandler('play', () => {
+        sound.play()
+        setIsPlaying(true)
+      })
+      navigator.mediaSession.setActionHandler('pause', () => {
+        sound.pause()
+        setIsPlaying(false)
+      })
+      navigator.mediaSession.setActionHandler('previoustrack', onPlayPrev)
+      navigator.mediaSession.setActionHandler('nexttrack', onPlayNext)
+    }
+  }, [sound, song, onPlayPrev, onPlayNext])
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 h-full">
 
       {/* Left */}
-<div className="flex w-full justify-start">
-  <div className="flex items-center gap-x-4">
-
-    {/* Artwork + Now Playing */}
-    <div className="relative flex items-center   gap-x-2">
-
-      <MediaItem data={song} />
-
-    {/* NOW PLAYING – deasupra la TOT */}
-    <div className="hidden md:flex items-center gap-1 text-[10px] font-medium text-red-600 mb-1">
-      <div className="flex gap-[2px]">
-        <span className="w-[2px] h-2 bg-red-600 animate-bounce" />
-        <span className="w-[2px] h-3 bg-red-600 animate-bounce delay-75" />
-        <span className="w-[2px] h-1.5 bg-red-600 animate-bounce delay-150" />
+      <div className="flex w-full justify-start">
+        <div className="flex items-center gap-x-4">
+          <div className="relative flex items-center gap-x-2">
+            <MediaItem data={song} />
+            <div className="hidden md:flex items-center gap-1 text-[10px] font-medium text-red-600 mb-1">
+              <div className="flex gap-[2px]">
+                <span className="w-[2px] h-2 bg-red-600 animate-bounce" />
+                <span className="w-[2px] h-3 bg-red-600 animate-bounce delay-75" />
+                <span className="w-[2px] h-1.5 bg-red-600 animate-bounce delay-150" />
+              </div>
+              <span className="uppercase tracking-wide">Now Playing</span>
+            </div>
+          </div>
+          <LikeButton songId={song.id} />
+        </div>
       </div>
-      <span className="uppercase tracking-wide">Now Playing</span>
-    </div>
-
-
-    </div>
-
-    <LikeButton songId={song.id} />
-  </div>
-</div>
-
 
       {/* Mobile Play */}
       <div className="flex md:hidden col-auto w-full justify-end items-center">
@@ -154,22 +178,18 @@ const PlayerContent = ({ song, songUrl }: Props) => {
 
       {/* Center */}
       <div className="hidden h-full md:flex flex-col justify-center items-center w-full max-w-[722px] gap-y-2">
-
-        {/* Controls */}
         <div className="flex items-center gap-x-6">
           <AiFillStepBackward
             size={30}
             className="text-neutral-400 cursor-pointer hover:text-white transition"
             onClick={onPlayPrev}
           />
-
           <div
             className="flex items-center justify-center h-10 w-10 rounded-full bg-white p-1 cursor-pointer transition-transform hover:scale-110 active:scale-95"
             onClick={handlePlay}
           >
             <Icon size={30} className="text-black" />
           </div>
-
           <AiFillStepForward
             size={30}
             className="text-neutral-400 cursor-pointer hover:text-white transition"
@@ -177,25 +197,16 @@ const PlayerContent = ({ song, songUrl }: Props) => {
           />
         </div>
 
-        {/* Progress */}
         <div className="flex items-center gap-x-2 w-full">
           <span className="text-xs text-neutral-400">{formatTime(currentTime)}</span>
-
-          <Slider
-            value={currentTime}
-            max={duration}
-            onChange={(value) => sound?.seek(value)}
-          />
-
+          <Slider value={currentTime} max={duration} onChange={handleSeek} />
           <span className="text-xs text-neutral-400">{formatTime(duration)}</span>
           <span className="text-xs text-neutral-400">-{formatTime(duration - currentTime)}</span>
         </div>
 
-        {/* Queue indicator */}
         {player.ids.length > 1 && (
           <p className="text-xs text-neutral-400 mt-1">{player.ids.length - 1} in queue</p>
         )}
-
       </div>
 
       {/* Right */}
