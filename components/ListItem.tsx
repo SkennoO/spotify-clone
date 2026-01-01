@@ -24,7 +24,7 @@ const ListItem = ({image,name,href}:Props) => {
             <Image className='object-cover' fill src={image} alt='img'/>
         </div>
         <p className='font-medium truncate py-5'>{name}</p>
-        <div className='absolute transition opacity-0 rounded-full flex items-center justify-center bg-green-500 p-4 drop-shadow-md right-5 group-hover:opacity-100 hover:scale-110'> {/*notice the largest parent has a group classname and this has group-hover this tells tailwind whenever I hover on the parent do an effect aka change opacity on the child, then hovering over the child itself adds another effect the scale effect*/}
+        <div className='absolute transition opacity-0 rounded-full flex items-center justify-center bg-red-600 p-4 drop-shadow-md right-5 group-hover:opacity-100 hover:scale-110'> {/*notice the largest parent has a group classname and this has group-hover this tells tailwind whenever I hover on the parent do an effect aka change opacity on the child, then hovering over the child itself adds another effect the scale effect*/}
             <FaPlay className='text-black'/>
         </div>
     </button>

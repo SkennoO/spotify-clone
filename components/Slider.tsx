@@ -17,7 +17,7 @@ const Slider: React.FC<SliderProps> = ({ value, onChange, max = 1 }) => {
       step={0.01}
       value={value}
       onChange={(e) => onChange(Number(e.target.value))}
-      className="w-full accent-green-500"
+      className="w-full accent-red-600"
     />
   );
 };

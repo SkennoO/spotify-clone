@@ -12,7 +12,7 @@ const Button = forwardRef<HTMLButtonElement, Props>(({
 },ref)=>{
     return(
         //i am so confused I got no idea, I guess all we did was create a custom component that extends the normal html component
-        <button type={type} className={twMerge(`w-full rounded-full bg-green-500 border border-transparent px-3 py-3 disabled:cursor-not-allowed disabled:opacity-50 text-black font-bold hover:opacity-75 transition`,className)} disabled={disabled} ref={ref} {...props}>
+        <button type={type} className={twMerge(`w-full rounded-full bg-red-600 border border-transparent px-3 py-3 disabled:cursor-not-allowed disabled:opacity-50 text-black font-bold hover:opacity-75 transition`,className)} disabled={disabled} ref={ref} {...props}>
             {children}
         </button>
     )
